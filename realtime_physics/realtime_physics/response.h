@@ -84,7 +84,7 @@ void rb_plane_response(RigidBody &rb1, Plane plane)
 
 			// update linear velocity and angular velocity
 			rb1.velocity += J_n / rb1.geometry->mass();
-			rb1.angular_velocity += glm::inverse(rb1.geometry->inertial_tensor()) * glm::cross(r_a, J_n);
+			//rb1.angular_velocity += glm::inverse(rb1.geometry->inertial_tensor()) * glm::cross(r_a, J_n);
 		}
 
 		// post processing, if the two objects overlap, separate them

@@ -508,7 +508,7 @@ void init()                              // All Setup For OpenGL Goes Here
 {
 	srand((unsigned int)time(0));
 	add_planes();
-	add_rigid_body();
+	//add_rigid_body();
 
 	glewInit();
 
