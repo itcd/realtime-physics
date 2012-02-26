@@ -59,10 +59,10 @@ void doUI() {
 
 	ui.beginGroup( nv::GroupFlags_GrowRightFromTop);
 	ui.doCheckButton(null, "rotate", &button_rotate);
-	ui.doCheckButton(null, "particles", &button_particle);
+	ui.doCheckButton(null, "add particles", &button_particle);
 	ui.doCheckButton(null, "particle texture", &button_particle_texture);
 	ui.doCheckButton(null, "show RB", &button_rigid_bodies);
-	ui.doButton(null, "add RB", &button_add_rigid_body);
+	ui.doButton(null, "add rigid body", &button_add_rigid_body);
 	ui.doCheckButton(null, "sphere", &button_bounding_sphere);
 	ui.doCheckButton(null, "AABB", &button_AABB);
 	ui.doCheckButton(null, "gravity", &button_gravity);
