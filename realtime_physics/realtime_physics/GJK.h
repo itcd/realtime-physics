@@ -327,7 +327,7 @@ bool GJK_intersect(RigidBody A, RigidBody B, glm::vec3 &normal)
 	auto vertices2 = B.geometry->vertices(B.orientation, B.position);
 	auto direction = A.position - B.position;
 
-	// get the first Minkowski Difference points
+	// get the first Minkowski Difference point
 	auto p1 = support(direction, vertices1, vertices2);
 	Simplex<glm::vec3> simplex;
 	simplex.add(p1);
