@@ -25,6 +25,8 @@
 \.bbl$
 \.blg$
 \.ps$
+\.brf$
+\.lbl$
 
 ^build/
 /build/
