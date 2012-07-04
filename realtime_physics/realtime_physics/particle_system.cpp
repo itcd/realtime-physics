@@ -9,8 +9,8 @@ using namespace std;
 
 // OpenGL Mathematics (GLM) http://www.g-truc.net/project-0016.html
 #include "../glm/glm/ext.hpp"
-//// OpenGL Image (GLI) http://www.g-truc.net/project-0024.html
-//#include "../gli/gli/gtx/gl_texture2d.hpp"
+// OpenGL Image (GLI) http://www.g-truc.net/project-0024.html
+#include "../gli/gli/gtx/gl_texture2d.hpp"
 
 // NVIDIA Widgets
 #include "../nvWidgets/nvWidgets_include.h"
@@ -512,8 +512,9 @@ void init()                              // All Setup For OpenGL Goes Here
 
 	glewInit();
 
-	if (!loadTGA ("ogl.tga", texture1))
-		printf ("ogl.tga not found!\n");
+	texture1 = gli::createTexture2D("transfer_function.tga");
+	//if (!loadTGA ("ogl.tga", texture1))
+	//	printf ("ogl.tga not found!\n");
 	if (!loadTGA ("particle.tga", texture2))
 		printf ("particle.tga not found!\n");
 
