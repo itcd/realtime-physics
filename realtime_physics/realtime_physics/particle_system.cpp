@@ -8,9 +8,9 @@ using namespace std;
 #include <GL/freeglut.h>
 
 // OpenGL Mathematics (GLM) http://www.g-truc.net/project-0016.html
-#include "../glm/glm/ext.hpp"
+#include <glm/ext.hpp>
 // OpenGL Image (GLI) http://www.g-truc.net/project-0024.html
-#include "../gli/gli/gtx/gl_texture2d.hpp"
+#include <gli/gtx/gl_texture2d.hpp>
 
 // NVIDIA Widgets
 #include "../nvWidgets/nvWidgets_include.h"

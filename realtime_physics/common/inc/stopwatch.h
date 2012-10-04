@@ -1,5 +1,5 @@
 /*
- * Copyright 1993-2010 NVIDIA Corporation.  All rights reserved.
+ * Copyright 1993-2012 NVIDIA Corporation.  All rights reserved.
  *
  * Please refer to the NVIDIA end user license agreement (EULA) associated
  * with this source code for terms and conditions that govern your use of
@@ -8,7 +8,7 @@
  * is strictly prohibited.
  *
  */
- 
+
 /* CUda UTility Library */
 
 #ifndef _STOPWATCH_H_
@@ -29,16 +29,16 @@ typedef StopWatchLinux  OSStopWatch;
 // concrete stop watch type
 typedef StopWatchBase<OSStopWatch>  StopWatchC;
 
-namespace StopWatch 
+namespace StopWatch
 {
-//! Create a stop watch
-const unsigned int create();
+    //! Create a stop watch
+    const unsigned int create();
 
-//! Get a handle to the stop watch with the name \a name
-StopWatchC& get( const unsigned int& name);
+    //! Get a handle to the stop watch with the name \a name
+    StopWatchC &get(const unsigned int &name);
 
-// Delete the stop watch with the name \a name
-void destroy( const unsigned int& name);
+    // Delete the stop watch with the name \a name
+    void destroy(const unsigned int &name);
 } // end namespace, stopwatch
 
 #endif // _STOPWATCH_H_

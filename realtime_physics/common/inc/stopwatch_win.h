@@ -1,5 +1,5 @@
 /*
- * Copyright 1993-2010 NVIDIA Corporation.  All rights reserved.
+ * Copyright 1993-2012 NVIDIA Corporation.  All rights reserved.
  *
  * Please refer to the NVIDIA end user license agreement (EULA) associated
  * with this source code for terms and conditions that govern your use of
@@ -8,7 +8,7 @@
  * is strictly prohibited.
  *
  */
- 
+
 /* CUda UTility Library */
 
 #ifndef _STOPWATCH_WIN_H_
@@ -23,61 +23,61 @@
 //! Windows specific implementation of StopWatch
 class StopWatchWin
 {
-protected:
+    protected:
 
-    //! Constructor, default
-    StopWatchWin();
+        //! Constructor, default
+        StopWatchWin();
 
-    // Destructor
-    ~StopWatchWin();
+        // Destructor
+        ~StopWatchWin();
 
-public:
+    public:
 
-    //! Start time measurement
-    inline void start();
+        //! Start time measurement
+        inline void start();
 
-    //! Stop time measurement
-    inline void stop();
+        //! Stop time measurement
+        inline void stop();
 
-    //! Reset time counters to zero
-    inline void reset();
+        //! Reset time counters to zero
+        inline void reset();
 
-    //! Time in msec. after start. If the stop watch is still running (i.e. there
-    //! was no call to stop()) then the elapsed time is returned, otherwise the
-    //! time between the last start() and stop call is returned
-    inline const float getTime() const;
+        //! Time in msec. after start. If the stop watch is still running (i.e. there
+        //! was no call to stop()) then the elapsed time is returned, otherwise the
+        //! time between the last start() and stop call is returned
+        inline const float getTime() const;
 
-    //! Mean time to date based on the number of times the stopwatch has been 
-    //! _stopped_ (ie finished sessions) and the current total time
-    inline const float getAverageTime() const;
+        //! Mean time to date based on the number of times the stopwatch has been
+        //! _stopped_ (ie finished sessions) and the current total time
+        inline const float getAverageTime() const;
 
-private:
+    private:
 
-    // member variables
+        // member variables
 
-    //! Start of measurement
-    LARGE_INTEGER  start_time;
-    //! End of measurement
-    LARGE_INTEGER  end_time;
+        //! Start of measurement
+        LARGE_INTEGER  start_time;
+        //! End of measurement
+        LARGE_INTEGER  end_time;
 
-    //! Time difference between the last start and stop
-    float  diff_time;
+        //! Time difference between the last start and stop
+        float  diff_time;
 
-    //! TOTAL time difference between starts and stops
-    float  total_time;
+        //! TOTAL time difference between starts and stops
+        float  total_time;
 
-    //! flag if the stop watch is running
-    bool running;
+        //! flag if the stop watch is running
+        bool running;
 
-    //! Number of times clock has been started
-    //! and stopped to allow averaging
-    int clock_sessions;
+        //! Number of times clock has been started
+        //! and stopped to allow averaging
+        int clock_sessions;
 
-    //! tick frequency
-    static double  freq;
+        //! tick frequency
+        static double  freq;
 
-    //! flag if the frequency has been set
-    static  bool  freq_set;
+        //! flag if the frequency has been set
+        static  bool  freq_set;
 };
 
 // functions, inlined
@@ -86,9 +86,9 @@ private:
 //! Start time measurement
 ////////////////////////////////////////////////////////////////////////////////
 inline void
-StopWatchWin::start() 
+StopWatchWin::start()
 {
-    QueryPerformanceCounter((LARGE_INTEGER*) &start_time);
+    QueryPerformanceCounter((LARGE_INTEGER *) &start_time);
     running = true;
 }
 
@@ -97,11 +97,11 @@ StopWatchWin::start()
 //! variable. Also increment the number of times this clock has been run.
 ////////////////////////////////////////////////////////////////////////////////
 inline void
-StopWatchWin::stop() 
+StopWatchWin::stop()
 {
-    QueryPerformanceCounter((LARGE_INTEGER*) &end_time);
-    diff_time = (float) 
-        (((double) end_time.QuadPart - (double) start_time.QuadPart) / freq);
+    QueryPerformanceCounter((LARGE_INTEGER *) &end_time);
+    diff_time = (float)
+                (((double) end_time.QuadPart - (double) start_time.QuadPart) / freq);
 
     total_time += diff_time;
     clock_sessions++;
@@ -109,37 +109,41 @@ StopWatchWin::stop()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//! Reset the timer to 0. Does not change the timer running state but does 
+//! Reset the timer to 0. Does not change the timer running state but does
 //! recapture this point in time as the current start time if it is running.
 ////////////////////////////////////////////////////////////////////////////////
 inline void
-StopWatchWin::reset() 
+StopWatchWin::reset()
 {
     diff_time = 0;
     total_time = 0;
     clock_sessions = 0;
-    if( running )
-        QueryPerformanceCounter((LARGE_INTEGER*) &start_time);
+
+    if (running)
+    {
+        QueryPerformanceCounter((LARGE_INTEGER *) &start_time);
+    }
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Time in msec. after start. If the stop watch is still running (i.e. there
-//! was no call to stop()) then the elapsed time is returned added to the 
+//! was no call to stop()) then the elapsed time is returned added to the
 //! current diff_time sum, otherwise the current summed time difference alone
 //! is returned.
 ////////////////////////////////////////////////////////////////////////////////
-inline const float 
-StopWatchWin::getTime() const 
+inline const float
+StopWatchWin::getTime() const
 {
     // Return the TOTAL time to date
     float retval = total_time;
-    if(running) 
+
+    if (running)
     {
         LARGE_INTEGER temp;
-        QueryPerformanceCounter((LARGE_INTEGER*) &temp);
-        retval += (float) 
-            (((double) (temp.QuadPart - start_time.QuadPart)) / freq);
+        QueryPerformanceCounter((LARGE_INTEGER *) &temp);
+        retval += (float)
+                  (((double)(temp.QuadPart - start_time.QuadPart)) / freq);
     }
 
     return retval;
@@ -149,10 +153,10 @@ StopWatchWin::getTime() const
 //! Time in msec. for a single run based on the total number of COMPLETED runs
 //! and the total time.
 ////////////////////////////////////////////////////////////////////////////////
-inline const float 
+inline const float
 StopWatchWin::getAverageTime() const
 {
-	return (clock_sessions > 0) ? (total_time/clock_sessions) : 0.0f;
+    return (clock_sessions > 0) ? (total_time/clock_sessions) : 0.0f;
 }
 
 #endif // _STOPWATCH_WIN_H_

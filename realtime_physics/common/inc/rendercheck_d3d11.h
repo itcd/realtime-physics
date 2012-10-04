@@ -1,5 +1,5 @@
 /*
- * Copyright 1993-2010 NVIDIA Corporation.  All rights reserved.
+ * Copyright 1993-2012 NVIDIA Corporation.  All rights reserved.
  *
  * Please refer to the NVIDIA end user license agreement (EULA) associated
  * with this source code for terms and conditions that govern your use of
@@ -9,7 +9,7 @@
  *
  */
 
- 
+
 #pragma once
 
 #ifndef _RENDERCHECK_D3D11_H_
@@ -24,15 +24,15 @@
 
 class CheckRenderD3D11
 {
-public:
+    public:
 
-	CheckRenderD3D11() {}
+        CheckRenderD3D11() {}
 
-	static HRESULT ActiveRenderTargetToPPM(ID3D11Device  *pDevice, const char *zFileName);
-	static HRESULT ResourceToPPM(ID3D11Device *pDevice, ID3D11Resource *pResource, const char *zFileName);
+        static HRESULT ActiveRenderTargetToPPM(ID3D11Device  *pDevice, const char *zFileName);
+        static HRESULT ResourceToPPM(ID3D11Device *pDevice, ID3D11Resource *pResource, const char *zFileName);
 
-	static bool PPMvsPPM( const char *src_file, const char *ref_file, const char *exec_path, 
-                          const float epsilon, const float threshold = 0.0f );
+        static bool PPMvsPPM(const char *src_file, const char *ref_file, const char *exec_path,
+                             const float epsilon, const float threshold = 0.0f);
 };
 
 #endif
