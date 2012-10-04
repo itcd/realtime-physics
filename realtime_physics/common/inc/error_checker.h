@@ -1,5 +1,5 @@
 /*
- * Copyright 1993-2010 NVIDIA Corporation.  All rights reserved.
+ * Copyright 1993-2012 NVIDIA Corporation.  All rights reserved.
  *
  * Please refer to the NVIDIA end user license agreement (EULA) associated
  * with this source code for terms and conditions that govern your use of
@@ -25,14 +25,14 @@
 //typedef unsigned int GLuint;
 
 //! Class providing the handler / tester functions for errors as static members
-class ErrorChecker 
+class ErrorChecker
 {
-public:
-    //! Check if a condition is true.
-    //! @note In prinicple has the same functionality as assert but allows 
-    //!       much better control this version prints an error and terminates
-    //!       the program, no exception is thrown.
-    inline static void condition( bool val, const char* file, const int line);
+    public:
+        //! Check if a condition is true.
+        //! @note In prinicple has the same functionality as assert but allows
+        //!       much better control this version prints an error and terminates
+        //!       the program, no exception is thrown.
+        inline static void condition(bool val, const char *file, const int line);
 };
 
 // functions, inlined
@@ -43,17 +43,17 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 //! Check if a condition is true.
 //! @note In prinicple has the same functionality as assert but allows much
-//!       better control this version prints an error and terminates the 
+//!       better control this version prints an error and terminates the
 //!       program, no exception is thrown.
 ////////////////////////////////////////////////////////////////////////////////
 /* static */ inline void
-ErrorChecker::condition( bool val, const char* file, const int line) 
+ErrorChecker::condition(bool val, const char *file, const int line)
 {
-    if ( ! val) 
+    if (! val)
     {
         std::ostringstream os;
         os << "Condition failed: " << file << " in line " << line;
-        RUNTIME_EXCEPTION( os.str() );
+        RUNTIME_EXCEPTION(os.str());
     }
 }
 

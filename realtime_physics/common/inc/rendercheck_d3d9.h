@@ -1,5 +1,5 @@
 /*
- * Copyright 1993-2010 NVIDIA Corporation.  All rights reserved.
+ * Copyright 1993-2012 NVIDIA Corporation.  All rights reserved.
  *
  * Please refer to the NVIDIA end user license agreement (EULA) associated
  * with this source code for terms and conditions that govern your use of
@@ -22,15 +22,15 @@
 
 class CheckRenderD3D9
 {
-public:
+    public:
 
-	CheckRenderD3D9() {}
+        CheckRenderD3D9() {}
 
-	static HRESULT BackbufferToPPM(IDirect3DDevice9*pDevice, const char *zFileName);
-	static HRESULT SurfaceToPPM(IDirect3DDevice9*pDevice, IDirect3DSurface9 *pSurface, const char *zFileName);
+        static HRESULT BackbufferToPPM(IDirect3DDevice9 *pDevice, const char *zFileName);
+        static HRESULT SurfaceToPPM(IDirect3DDevice9 *pDevice, IDirect3DSurface9 *pSurface, const char *zFileName);
 
-	static bool PPMvsPPM( const char *src_file, const char *ref_file, const char *exec_path, 
-                          const float epsilon, const float threshold = 0.0f );
+        static bool PPMvsPPM(const char *src_file, const char *ref_file, const char *exec_path,
+                             const float epsilon, const float threshold = 0.0f);
 };
 
 #endif

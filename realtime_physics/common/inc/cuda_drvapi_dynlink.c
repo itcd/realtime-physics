@@ -1,16 +1,16 @@
 /*
- * Copyright 1993-2010 NVIDIA Corporation.  All rights reserved.
+ * Copyright 1993-2012 NVIDIA Corporation.  All rights reserved.
  *
- * NVIDIA Corporation and its licensors retain all intellectual property and 
- * proprietary rights in and to this software and related documentation. 
- * Any use, reproduction, disclosure, or distribution of this software 
+ * NVIDIA Corporation and its licensors retain all intellectual property and
+ * proprietary rights in and to this software and related documentation.
+ * Any use, reproduction, disclosure, or distribution of this software
  * and related documentation without an express license agreement from
  * NVIDIA Corporation is strictly prohibited.
  *
- * Please refer to the applicable NVIDIA end user license agreement (EULA) 
- * associated with this source code for terms and conditions that govern 
+ * Please refer to the applicable NVIDIA end user license agreement (EULA)
+ * associated with this source code for terms and conditions that govern
  * your use of this NVIDIA software.
- * 
+ *
  */
 
 // With these flags defined, this source file will dynamically
@@ -201,81 +201,85 @@ tcuWGLGetDevice                       *cuWGLGetDevice;
 #define STRINGIFY(X) #X
 
 #ifdef _WIN32
-    #include <Windows.h>
+#include <Windows.h>
 
-    #ifdef UNICODE
-    static LPCWSTR __CudaLibName = L"nvcuda.dll";
-    #else
-    static LPCSTR __CudaLibName = "nvcuda.dll";
-    #endif
+#ifdef UNICODE
+static LPCWSTR __CudaLibName = L"nvcuda.dll";
+#else
+static LPCSTR __CudaLibName = "nvcuda.dll";
+#endif
 
-    typedef HMODULE CUDADRIVER;
+typedef HMODULE CUDADRIVER;
 
-    static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
+static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
+{
+    *pInstance = LoadLibrary(__CudaLibName);
+
+    if (*pInstance == NULL)
     {
-        *pInstance = LoadLibrary(__CudaLibName);
-        if (*pInstance == NULL)
-        {
-            printf("LoadLibrary \"%s\" failed!\n", __CudaLibName);
-            return CUDA_ERROR_UNKNOWN;
-        }
-        return CUDA_SUCCESS;
+        printf("LoadLibrary \"%s\" failed!\n", __CudaLibName);
+        return CUDA_ERROR_UNKNOWN;
     }
 
-    #define GET_PROC_EX(name, alias, required)                     \
-		alias = (t##name *)GetProcAddress(CudaDrvLib, #name);               \
-        if (alias == NULL && required) {                                    \
-            printf("Failed to find required function \"%s\" in %s\n",       \
-			        #name, __CudaLibName);                                  \
-            return CUDA_ERROR_UNKNOWN;                                      \
-        }
+    return CUDA_SUCCESS;
+}
 
-    #define GET_PROC_EX_V2(name, alias, required)                           \
-	    alias = (t##name *)GetProcAddress(CudaDrvLib, STRINGIFY(name##_v2));\
-        if (alias == NULL && required) {                                    \
-            printf("Failed to find required function \"%s\" in %s\n",       \
-			     STRINGIFY(name##_v2), __CudaLibName);                       \
-            return CUDA_ERROR_UNKNOWN;                                      \
-        }
+#define GET_PROC_EX(name, alias, required)                     \
+    alias = (t##name *)GetProcAddress(CudaDrvLib, #name);               \
+    if (alias == NULL && required) {                                    \
+        printf("Failed to find required function \"%s\" in %s\n",       \
+               #name, __CudaLibName);                                  \
+        return CUDA_ERROR_UNKNOWN;                                      \
+    }
+
+#define GET_PROC_EX_V2(name, alias, required)                           \
+    alias = (t##name *)GetProcAddress(CudaDrvLib, STRINGIFY(name##_v2));\
+    if (alias == NULL && required) {                                    \
+        printf("Failed to find required function \"%s\" in %s\n",       \
+               STRINGIFY(name##_v2), __CudaLibName);                       \
+        return CUDA_ERROR_UNKNOWN;                                      \
+    }
 
 #elif defined(__unix__) || defined(__APPLE__) || defined(__MACOSX)
 
-    #include <dlfcn.h>
+#include <dlfcn.h>
 
-    #if defined(__APPLE__) || defined(__MACOSX)
-    static char __CudaLibName[] = "/usr/local/cuda/lib/libcuda.dylib";
-    #else
-    static char __CudaLibName[] = "libcuda.so";
-    #endif
+#if defined(__APPLE__) || defined(__MACOSX)
+static char __CudaLibName[] = "/usr/local/cuda/lib/libcuda.dylib";
+#else
+static char __CudaLibName[] = "libcuda.so";
+#endif
 
-    typedef void * CUDADRIVER;
+typedef void *CUDADRIVER;
 
-    static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
+static CUresult LOAD_LIBRARY(CUDADRIVER *pInstance)
+{
+    *pInstance = dlopen(__CudaLibName, RTLD_NOW);
+
+    if (*pInstance == NULL)
     {
-        *pInstance = dlopen(__CudaLibName, RTLD_NOW);
-        if (*pInstance == NULL)
-        {
-            printf("dlopen \"%s\" failed!\n", __CudaLibName);
-            return CUDA_ERROR_UNKNOWN;
-        }
-        return CUDA_SUCCESS;
+        printf("dlopen \"%s\" failed!\n", __CudaLibName);
+        return CUDA_ERROR_UNKNOWN;
     }
 
-    #define GET_PROC_EX(name, alias, required)                              \
-		alias = (t##name *)dlsym(CudaDrvLib, #name);                        \
-        if (alias == NULL && required) {                                    \
-            printf("Failed to find required function \"%s\" in %s\n",       \
-			        #name, __CudaLibName);                                  \
-            return CUDA_ERROR_UNKNOWN;                                      \
-        }
+    return CUDA_SUCCESS;
+}
 
-    #define GET_PROC_EX_V2(name, alias, required)                           \
-	    alias = (t##name *)dlsym(CudaDrvLib, STRINGIFY(name##_v2));         \
-        if (alias == NULL && required) {                                    \
-            printf("Failed to find required function \"%s\" in %s\n",       \
-			       STRINGIFY(name##_v2), __CudaLibName);                    \
-            return CUDA_ERROR_UNKNOWN;                                      \
-        }
+#define GET_PROC_EX(name, alias, required)                              \
+    alias = (t##name *)dlsym(CudaDrvLib, #name);                        \
+    if (alias == NULL && required) {                                    \
+        printf("Failed to find required function \"%s\" in %s\n",       \
+               #name, __CudaLibName);                                  \
+        return CUDA_ERROR_UNKNOWN;                                      \
+    }
+
+#define GET_PROC_EX_V2(name, alias, required)                           \
+    alias = (t##name *)dlsym(CudaDrvLib, STRINGIFY(name##_v2));         \
+    if (alias == NULL && required) {                                    \
+        printf("Failed to find required function \"%s\" in %s\n",       \
+               STRINGIFY(name##_v2), __CudaLibName);                    \
+        return CUDA_ERROR_UNKNOWN;                                      \
+    }
 
 #else
 #error unsupported platform
@@ -307,7 +311,9 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
 
     // available since 2.2. if not present, version 1.0 is assumed
     GET_PROC_OPTIONAL(cuDriverGetVersion);
-    if (cuDriverGetVersion) {
+
+    if (cuDriverGetVersion)
+    {
         CHECKED_CALL(cuDriverGetVersion(&driverVer));
     }
 
@@ -367,149 +373,157 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
     GET_PROC(cuStreamSynchronize);
     GET_PROC(cuStreamDestroy);
 
-	// These could be _v2 interfaces
-    if (cudaVersion >= 4000 && __CUDA_API_VERSION >= 4000) 
+    // These could be _v2 interfaces
+    if (cudaVersion >= 4000 && __CUDA_API_VERSION >= 4000)
     {
         GET_PROC_V2(cuCtxDestroy);
         GET_PROC_V2(cuCtxPopCurrent);
         GET_PROC_V2(cuCtxPushCurrent);
         GET_PROC_V2(cuStreamDestroy);
         GET_PROC_V2(cuEventDestroy);
-    } 
+    }
 
-    if (cudaVersion >= 3020 && __CUDA_API_VERSION >= 3020) 
-	{
-		GET_PROC_V2(cuDeviceTotalMem);
-		GET_PROC_V2(cuCtxCreate);
-		GET_PROC_V2(cuModuleGetGlobal);
-		GET_PROC_V2(cuMemGetInfo);
-		GET_PROC_V2(cuMemAlloc);
-		GET_PROC_V2(cuMemAllocPitch);
-		GET_PROC_V2(cuMemFree);
-		GET_PROC_V2(cuMemGetAddressRange);
-		GET_PROC_V2(cuMemAllocHost);
-		GET_PROC_V2(cuMemHostGetDevicePointer);
-		GET_PROC_V2(cuMemcpyHtoD);
-		GET_PROC_V2(cuMemcpyDtoH);
-		GET_PROC_V2(cuMemcpyDtoD);
-		GET_PROC_V2(cuMemcpyDtoA);
-		GET_PROC_V2(cuMemcpyAtoD);
-		GET_PROC_V2(cuMemcpyHtoA);
-		GET_PROC_V2(cuMemcpyAtoH);
-		GET_PROC_V2(cuMemcpyAtoA);
-		GET_PROC_V2(cuMemcpy2D);
-		GET_PROC_V2(cuMemcpy2DUnaligned);
-		GET_PROC_V2(cuMemcpy3D);
-		GET_PROC_V2(cuMemcpyHtoDAsync);
-		GET_PROC_V2(cuMemcpyDtoHAsync);
-		GET_PROC_V2(cuMemcpyHtoAAsync);
-		GET_PROC_V2(cuMemcpyAtoHAsync);
-		GET_PROC_V2(cuMemcpy2DAsync);
-		GET_PROC_V2(cuMemcpy3DAsync);
-		GET_PROC_V2(cuMemsetD8);
-		GET_PROC_V2(cuMemsetD16);
-		GET_PROC_V2(cuMemsetD32);
-		GET_PROC_V2(cuMemsetD2D8);
-		GET_PROC_V2(cuMemsetD2D16);
-		GET_PROC_V2(cuMemsetD2D32);
-		GET_PROC_V2(cuArrayCreate);
-		GET_PROC_V2(cuArrayGetDescriptor);
-		GET_PROC_V2(cuArray3DCreate);
-		GET_PROC_V2(cuArray3DGetDescriptor);
-		GET_PROC_V2(cuTexRefSetAddress);
-		GET_PROC_V2(cuTexRefSetAddress2D);
-		GET_PROC_V2(cuTexRefGetAddress);
-	} else {
-		GET_PROC(cuDeviceTotalMem);
-		GET_PROC(cuCtxCreate);
-		GET_PROC(cuModuleGetGlobal);
-		GET_PROC(cuMemGetInfo);
-		GET_PROC(cuMemAlloc);
-		GET_PROC(cuMemAllocPitch);
-		GET_PROC(cuMemFree);
-		GET_PROC(cuMemGetAddressRange);
-		GET_PROC(cuMemAllocHost);
-		GET_PROC(cuMemHostGetDevicePointer);
-		GET_PROC(cuMemcpyHtoD);
-		GET_PROC(cuMemcpyDtoH);
-		GET_PROC(cuMemcpyDtoD);
-		GET_PROC(cuMemcpyDtoA);
-		GET_PROC(cuMemcpyAtoD);
-		GET_PROC(cuMemcpyHtoA);
-		GET_PROC(cuMemcpyAtoH);
-		GET_PROC(cuMemcpyAtoA);
-		GET_PROC(cuMemcpy2D);
-		GET_PROC(cuMemcpy2DUnaligned);
-		GET_PROC(cuMemcpy3D);
-		GET_PROC(cuMemcpyHtoDAsync);
-		GET_PROC(cuMemcpyDtoHAsync);
-		GET_PROC(cuMemcpyHtoAAsync);
-		GET_PROC(cuMemcpyAtoHAsync);
-		GET_PROC(cuMemcpy2DAsync);
-		GET_PROC(cuMemcpy3DAsync);
-		GET_PROC(cuMemsetD8);
-		GET_PROC(cuMemsetD16);
-		GET_PROC(cuMemsetD32);
-		GET_PROC(cuMemsetD2D8);
-		GET_PROC(cuMemsetD2D16);
-		GET_PROC(cuMemsetD2D32);
-		GET_PROC(cuArrayCreate);
-		GET_PROC(cuArrayGetDescriptor);
-		GET_PROC(cuArray3DCreate);
-		GET_PROC(cuArray3DGetDescriptor);
-		GET_PROC(cuTexRefSetAddress);
-		GET_PROC(cuTexRefSetAddress2D);
-		GET_PROC(cuTexRefGetAddress);
-	}
+    if (cudaVersion >= 3020 && __CUDA_API_VERSION >= 3020)
+    {
+        GET_PROC_V2(cuDeviceTotalMem);
+        GET_PROC_V2(cuCtxCreate);
+        GET_PROC_V2(cuModuleGetGlobal);
+        GET_PROC_V2(cuMemGetInfo);
+        GET_PROC_V2(cuMemAlloc);
+        GET_PROC_V2(cuMemAllocPitch);
+        GET_PROC_V2(cuMemFree);
+        GET_PROC_V2(cuMemGetAddressRange);
+        GET_PROC_V2(cuMemAllocHost);
+        GET_PROC_V2(cuMemHostGetDevicePointer);
+        GET_PROC_V2(cuMemcpyHtoD);
+        GET_PROC_V2(cuMemcpyDtoH);
+        GET_PROC_V2(cuMemcpyDtoD);
+        GET_PROC_V2(cuMemcpyDtoA);
+        GET_PROC_V2(cuMemcpyAtoD);
+        GET_PROC_V2(cuMemcpyHtoA);
+        GET_PROC_V2(cuMemcpyAtoH);
+        GET_PROC_V2(cuMemcpyAtoA);
+        GET_PROC_V2(cuMemcpy2D);
+        GET_PROC_V2(cuMemcpy2DUnaligned);
+        GET_PROC_V2(cuMemcpy3D);
+        GET_PROC_V2(cuMemcpyHtoDAsync);
+        GET_PROC_V2(cuMemcpyDtoHAsync);
+        GET_PROC_V2(cuMemcpyHtoAAsync);
+        GET_PROC_V2(cuMemcpyAtoHAsync);
+        GET_PROC_V2(cuMemcpy2DAsync);
+        GET_PROC_V2(cuMemcpy3DAsync);
+        GET_PROC_V2(cuMemsetD8);
+        GET_PROC_V2(cuMemsetD16);
+        GET_PROC_V2(cuMemsetD32);
+        GET_PROC_V2(cuMemsetD2D8);
+        GET_PROC_V2(cuMemsetD2D16);
+        GET_PROC_V2(cuMemsetD2D32);
+        GET_PROC_V2(cuArrayCreate);
+        GET_PROC_V2(cuArrayGetDescriptor);
+        GET_PROC_V2(cuArray3DCreate);
+        GET_PROC_V2(cuArray3DGetDescriptor);
+        GET_PROC_V2(cuTexRefSetAddress);
+        GET_PROC_V2(cuTexRefSetAddress2D);
+        GET_PROC_V2(cuTexRefGetAddress);
+    }
+    else
+    {
+        GET_PROC(cuDeviceTotalMem);
+        GET_PROC(cuCtxCreate);
+        GET_PROC(cuModuleGetGlobal);
+        GET_PROC(cuMemGetInfo);
+        GET_PROC(cuMemAlloc);
+        GET_PROC(cuMemAllocPitch);
+        GET_PROC(cuMemFree);
+        GET_PROC(cuMemGetAddressRange);
+        GET_PROC(cuMemAllocHost);
+        GET_PROC(cuMemHostGetDevicePointer);
+        GET_PROC(cuMemcpyHtoD);
+        GET_PROC(cuMemcpyDtoH);
+        GET_PROC(cuMemcpyDtoD);
+        GET_PROC(cuMemcpyDtoA);
+        GET_PROC(cuMemcpyAtoD);
+        GET_PROC(cuMemcpyHtoA);
+        GET_PROC(cuMemcpyAtoH);
+        GET_PROC(cuMemcpyAtoA);
+        GET_PROC(cuMemcpy2D);
+        GET_PROC(cuMemcpy2DUnaligned);
+        GET_PROC(cuMemcpy3D);
+        GET_PROC(cuMemcpyHtoDAsync);
+        GET_PROC(cuMemcpyDtoHAsync);
+        GET_PROC(cuMemcpyHtoAAsync);
+        GET_PROC(cuMemcpyAtoHAsync);
+        GET_PROC(cuMemcpy2DAsync);
+        GET_PROC(cuMemcpy3DAsync);
+        GET_PROC(cuMemsetD8);
+        GET_PROC(cuMemsetD16);
+        GET_PROC(cuMemsetD32);
+        GET_PROC(cuMemsetD2D8);
+        GET_PROC(cuMemsetD2D16);
+        GET_PROC(cuMemsetD2D32);
+        GET_PROC(cuArrayCreate);
+        GET_PROC(cuArrayGetDescriptor);
+        GET_PROC(cuArray3DCreate);
+        GET_PROC(cuArray3DGetDescriptor);
+        GET_PROC(cuTexRefSetAddress);
+        GET_PROC(cuTexRefSetAddress2D);
+        GET_PROC(cuTexRefGetAddress);
+    }
 
     // The following functions are specific to CUDA versions
-    if (driverVer >= 2010) {
+    if (driverVer >= 2010)
+    {
         GET_PROC(cuModuleLoadDataEx);
         GET_PROC(cuModuleLoadFatBinary);
-        #ifdef CUDA_INIT_OPENGL
+#ifdef CUDA_INIT_OPENGL
         GET_PROC(cuGLCtxCreate);
         GET_PROC(cuGraphicsGLRegisterBuffer);
         GET_PROC(cuGraphicsGLRegisterImage);
-        #  ifdef _WIN32
+#  ifdef _WIN32
         GET_PROC(cuWGLGetDevice);
-        #  endif
-        #endif
-        #ifdef CUDA_INIT_D3D9
+#  endif
+#endif
+#ifdef CUDA_INIT_D3D9
         GET_PROC(cuD3D9GetDevice);
         GET_PROC(cuD3D9CtxCreate);
         GET_PROC(cuGraphicsD3D9RegisterResource);
-        #endif
+#endif
     }
 
-    if (driverVer >= 2030) {
+    if (driverVer >= 2030)
+    {
         GET_PROC(cuMemHostGetFlags);
-        #ifdef CUDA_INIT_D3D10
+#ifdef CUDA_INIT_D3D10
         GET_PROC(cuD3D10GetDevice);
         GET_PROC(cuD3D10CtxCreate);
         GET_PROC(cuGraphicsD3D10RegisterResource);
-        #endif
-        #ifdef CUDA_INIT_OPENGL
+#endif
+#ifdef CUDA_INIT_OPENGL
         GET_PROC(cuGraphicsGLRegisterBuffer);
         GET_PROC(cuGraphicsGLRegisterImage);
-        #endif
+#endif
     }
 
-    if (driverVer >= 3000) {
+    if (driverVer >= 3000)
+    {
         GET_PROC(cuMemcpyDtoDAsync);
         GET_PROC(cuFuncSetCacheConfig);
-        #ifdef CUDA_INIT_D3D11
+#ifdef CUDA_INIT_D3D11
         GET_PROC(cuD3D11GetDevice);
         GET_PROC(cuD3D11CtxCreate);
         GET_PROC(cuGraphicsD3D11RegisterResource);
-        #endif
+#endif
         GET_PROC(cuGraphicsUnregisterResource);
         GET_PROC(cuGraphicsSubResourceGetMappedArray);
 
-		if (cudaVersion >= 3020 && __CUDA_API_VERSION >= 3020) {
-			GET_PROC_V2(cuGraphicsResourceGetMappedPointer);
-		} else {
-			GET_PROC(cuGraphicsResourceGetMappedPointer);
-		}
+        if (cudaVersion >= 3020 && __CUDA_API_VERSION >= 3020)
+        {
+            GET_PROC_V2(cuGraphicsResourceGetMappedPointer);
+        }
+        else
+        {
+            GET_PROC(cuGraphicsResourceGetMappedPointer);
+        }
 
         GET_PROC(cuGraphicsResourceSetMapFlags);
         GET_PROC(cuGraphicsMapResources);
@@ -517,7 +531,8 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
         GET_PROC(cuGetExportTable);
     }
 
-    if (driverVer >= 3010) {
+    if (driverVer >= 3010)
+    {
         GET_PROC(cuModuleGetSurfRef);
         GET_PROC(cuSurfRefSetArray);
         GET_PROC(cuSurfRefGetArray);
@@ -525,7 +540,8 @@ CUresult CUDAAPI cuInit(unsigned int Flags, int cudaVersion)
         GET_PROC(cuCtxGetLimit);
     }
 
-    if (driverVer >= 4000) {
+    if (driverVer >= 4000)
+    {
         GET_PROC(cuCtxSetCurrent);
         GET_PROC(cuCtxGetCurrent);
         GET_PROC(cuMemHostRegister);

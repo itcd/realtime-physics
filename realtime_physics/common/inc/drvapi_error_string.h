@@ -1,5 +1,5 @@
 /*
- * Copyright 1993-2010 NVIDIA Corporation.  All rights reserved.
+ * Copyright 1993-2012 NVIDIA Corporation.  All rights reserved.
  *
  * Please refer to the NVIDIA end user license agreement (EULA) associated
  * with this source code for terms and conditions that govern your use of
@@ -8,13 +8,15 @@
  * is strictly prohibited.
  *
  */
- 
+
 #ifndef _DRVAPI_ERROR_STRING_H_
 #define _DRVAPI_ERROR_STRING_H_
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#ifdef  __cuda_cuda_h__ // check to see if CUDA_H is included above
 
 // Error Code string definitions here
 typedef struct
@@ -60,12 +62,12 @@ static s_CudaErrorStr sCudaDrvErrorString[] =
 
     /**
      * This indicates profiling APIs are called while application is running
-     * in visual profiler mode. 
+     * in visual profiler mode.
     */
     { "CUDA_ERROR_PROFILER_DISABLED", 5 },
     /**
-     * This indicates profiling has not been initialized for this context. 
-     * Call cuProfilerInitialize() to resolve this. 
+     * This indicates profiling has not been initialized for this context.
+     * Call cuProfilerInitialize() to resolve this.
     */
     { "CUDA_ERROR_PROFILER_NOT_INITIALIZED", 6 },
     /**
@@ -77,7 +79,7 @@ static s_CudaErrorStr sCudaDrvErrorString[] =
      * This indicates profiler has already been stopped and probably
      * cuProfilerStop() is incorrectly called.
     */
-    { "CUDA_ERROR_PROFILER_ALREADY_STOPPED", 8 },  
+    { "CUDA_ERROR_PROFILER_ALREADY_STOPPED", 8 },
     /**
      * This indicates that no CUDA-capable devices were detected by the installed
      * CUDA driver.
@@ -181,7 +183,7 @@ static s_CudaErrorStr sCudaDrvErrorString[] =
 
     /**
      * This indicates that the ::CUcontext passed to the API call can
-     * only be bound to a single CPU thread at a time but is already 
+     * only be bound to a single CPU thread at a time but is already
      * bound to a CPU thread.
      */
     { "CUDA_ERROR_CONTEXT_ALREADY_IN_USE", 216 },
@@ -272,7 +274,7 @@ static s_CudaErrorStr sCudaDrvErrorString[] =
      * mode.
      */
     { "CUDA_ERROR_LAUNCH_INCOMPATIBLE_TEXTURING", 703 },
-    
+
     /**
      * This error indicates that a call to ::cuCtxEnablePeerAccess() is
      * trying to re-enable peer access to a context which has already
@@ -281,9 +283,9 @@ static s_CudaErrorStr sCudaDrvErrorString[] =
     { "CUDA_ERROR_PEER_ACCESS_ALREADY_ENABLED", 704 },
 
     /**
-     * This error indicates that ::cuCtxDisablePeerAccess() is 
-     * trying to disable peer access which has not been enabled yet 
-     * via ::cuCtxEnablePeerAccess(). 
+     * This error indicates that ::cuCtxDisablePeerAccess() is
+     * trying to disable peer access which has not been enabled yet
+     * via ::cuCtxEnablePeerAccess().
      */
     { "CUDA_ERROR_PEER_ACCESS_NOT_ENABLED", 705 },
 
@@ -302,8 +304,8 @@ static s_CudaErrorStr sCudaDrvErrorString[] =
 
     /**
      * A device-side assert triggered during kernel execution. The context
-     * cannot be used anymore, and must be destroyed. All existing device 
-     * memory allocations from this context are invalid and must be 
+     * cannot be used anymore, and must be destroyed. All existing device
+     * memory allocations from this context are invalid and must be
      * reconstructed if the program is to continue using CUDA.
      */
     { "CUDA_ERROR_ASSERT", 710 },
@@ -317,16 +319,23 @@ static s_CudaErrorStr sCudaDrvErrorString[] =
 
 // This is just a linear search through the array, since the error_id's are not
 // always ocurring consecutively
-inline const char * getCudaDrvErrorString(CUresult error_id)
+inline const char *getCudaDrvErrorString(CUresult error_id)
 {
     int index = 0;
-    while (sCudaDrvErrorString[index].error_id != error_id && 
+
+    while (sCudaDrvErrorString[index].error_id != error_id &&
            sCudaDrvErrorString[index].error_id != -1)
     {
         index++;
-        return (const char *)sCudaDrvErrorString[index].error_string;
     }
-    return (const char *)"CUDA_ERROR not found!";
+
+    if (sCudaDrvErrorString[index].error_id == error_id)
+        return (const char *)sCudaDrvErrorString[index].error_string;
+    else
+        return (const char *)"CUDA_ERROR not found!";
 }
+
+#endif // __cuda_cuda_h__
+
 
 #endif

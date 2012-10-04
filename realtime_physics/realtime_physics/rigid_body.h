@@ -1,6 +1,7 @@
 #ifndef RIGID_BODY_H
 #define RIGID_BODY_H
 
+#include <memory>
 #include "geometry.h"
 #include "distance.h"
 
