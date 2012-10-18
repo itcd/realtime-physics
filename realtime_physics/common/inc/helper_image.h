@@ -376,7 +376,7 @@ sdkSavePPM4ub(const char *file, unsigned char *data,
 
 //////////////////////////////////////////////////////////////////////////////
 //! Read file \filename and return the data
-//! @return CUTTrue if reading the file succeeded, otherwise false
+//! @return bool if reading the file succeeded, otherwise false
 //! @param filename name of the source file
 //! @param data  uninitialized pointer, returned initialized and pointing to
 //!        the data read
@@ -394,47 +394,31 @@ sdkReadFile(const char *filename, T **data, unsigned int *len, bool verbose)
     std::vector<T>  data_read;
 
     // open file for reading
-    std::fstream fh(filename, std::fstream::in);
+    FILE* fh = NULL;
 
     // check if filestream is valid
-    if (! fh.good())
+    if (FOPEN_FAIL(FOPEN(fh, filename, "r")))
     {
-        if (verbose)
-        {
-            std::cerr << "cutReadFile() : Opening file failed." << std::endl;
-        }
-
+        printf("Unable to open input file: %s\n", filename);
         return false;
     }
 
     // read all data elements
     T token;
-
-    while (fh.good())
-    {
-        fh >> token;
+    while(!feof(fh)) {
+        fscanf(fh, "%f", &token);
         data_read.push_back(token);
     }
-
     // the last element is read twice
     data_read.pop_back();
-
-    // check if reading result is consistent
-    if (!fh.eof())
-    {
-        if (verbose)
-            std::cerr << "WARNING : readData() : reading file might have failed."
-                      << std::endl;
-    }
-
-    fh.close();
+    fclose(fh);
 
     // check if the given handle is already initialized
     if (NULL != *data)
     {
         if (*len != data_read.size())
         {
-            std::cerr << "cutReadFile() : Initialized memory given but "
+            std::cerr << "sdkReadFile() : Initialized memory given but "
                       << "size  mismatch with signal read "
                       << "(data read / data init = " << (unsigned int)data_read.size()
                       <<  " / " << *len << ")" << std::endl;
@@ -457,6 +441,44 @@ sdkReadFile(const char *filename, T **data, unsigned int *len, bool verbose)
 }
 
 //////////////////////////////////////////////////////////////////////////////
+//! Read file \filename and return the data
+//! @return bool if reading the file succeeded, otherwise false
+//! @param filename name of the source file
+//! @param data  uninitialized pointer, returned initialized and pointing to
+//!        the data read
+//! @param len  number of data elements in data, -1 on error
+//////////////////////////////////////////////////////////////////////////////
+template<class T>
+inline bool
+sdkReadFileBlocks(const char *filename, T **data, unsigned int *len, unsigned int block_num, unsigned int block_size, bool verbose)
+{
+    // check input arguments
+    assert(NULL != filename);
+    assert(NULL != len);
+
+    // open file for reading
+    FILE *fh = fopen(filename, "rb");
+
+    if (fh == NULL && verbose)
+    {
+        std::cerr << "sdkReadFile() : Opening file failed." << std::endl;
+        return false;
+    }
+
+    // check if the given handle is already initialized
+    // allocate storage for the data read
+    data[block_num] = (T *) malloc(block_size);
+
+    // read all data elements
+    fseek(fh, block_num * block_size, SEEK_SET);
+    *len = fread(data[block_num], sizeof(T), block_size/sizeof(T), fh);
+
+    fclose(fh);
+
+    return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
 //! Write a data file \filename
 //! @return true if writing the file succeeded, otherwise false
 //! @param filename name of the source file
@@ -467,20 +489,34 @@ sdkReadFile(const char *filename, T **data, unsigned int *len, bool verbose)
 template<class T, class S>
 inline bool
 sdkWriteFile(const char *filename, const T *data, unsigned int len,
-             const S epsilon, bool verbose)
+             const S epsilon, bool verbose, bool append = false)
 {
     assert(NULL != filename);
     assert(NULL != data);
 
     // open file for writing
-    std::fstream fh(filename, std::fstream::out);
+    //    if (append) {
+    std::fstream fh(filename, std::fstream::out | std::fstream::ate);
+
+    if (verbose)
+    {
+        std::cerr << "sdkWriteFile() : Open file " << filename << " for write/append." << std::endl;
+    }
+
+    /*    } else {
+            std::fstream fh(filename, std::fstream::out);
+            if (verbose) {
+                std::cerr << "sdkWriteFile() : Open file " << filename << " for write." << std::endl;
+            }
+        }
+    */
 
     // check if filestream is valid
     if (! fh.good())
     {
         if (verbose)
         {
-            std::cerr << "cutWriteFile() : Opening file failed." << std::endl;
+            std::cerr << "sdkWriteFile() : Opening file failed." << std::endl;
         }
 
         return false;
@@ -500,7 +536,7 @@ sdkWriteFile(const char *filename, const T *data, unsigned int len,
     {
         if (verbose)
         {
-            std::cerr << "cutWriteFile() : Writing file failed." << std::endl;
+            std::cerr << "sdkWriteFile() : Writing file failed." << std::endl;
         }
 
         return false;
@@ -538,7 +574,7 @@ compareData(const T *reference, const T *data, const unsigned int len,
 
         error_count += !comp;
 
-#ifdef _DEBUG
+#if 0
 
         if (! comp)
         {
@@ -600,7 +636,7 @@ compareDataAsFloatThreshold(const T *reference, const T *data, const unsigned in
         if (! comp)
         {
             error_count++;
-#ifdef _DEBUG
+#if 0
 
             if (error_count < 50)
             {

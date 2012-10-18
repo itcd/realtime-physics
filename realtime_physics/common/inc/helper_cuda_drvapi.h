@@ -40,7 +40,7 @@ inline void __checkCudaErrors(CUresult err, const char *file, const int line)
     {
         fprintf(stderr, "checkCudaErrors() Driver API error = %04d \"%s\" from file <%s>, line %i.\n",
                 err, getCudaDrvErrorString(err), file, line);
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 }
 #endif
@@ -60,7 +60,7 @@ inline void __getLastCudaDrvErrorMsg(const char *msg, const char *file, const in
         fprintf(stderr, "getLastCudaDrvErrorMsg -> %s", msg);
         fprintf(stderr, "getLastCudaDrvErrorMsg -> cuCtxSynchronize API error = %04d \"%s\" in file <%s>, line %i.\n",
                 err, getCudaDrvErrorString(err), file, line);
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -73,7 +73,7 @@ inline void getCudaAttribute(T *attribute, CUdevice_attribute device_attribute, 
     if (error_result != CUDA_SUCCESS)
     {
         printf("cuDeviceGetAttribute returned %d\n-> %s\n", (int)error_result, getCudaDrvErrorString(error_result));
-        exit(0);
+        exit(EXIT_SUCCESS);
     }
 }
 #endif
@@ -135,7 +135,7 @@ inline int gpuDeviceInitDRV(int ARGC, const char **ARGV)
     if (deviceCount == 0)
     {
         fprintf(stderr, "cudaDeviceInit error: no devices supporting CUDA\n");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     int dev = 0;
@@ -388,7 +388,7 @@ inline CUdevice findCudaDeviceDRV(int argc, const char **argv)
         if (devID < 0)
         {
             printf("exiting...\n");
-            exit(0);
+            exit(EXIT_SUCCESS);
         }
     }
     else
@@ -420,7 +420,7 @@ inline CUdevice findCudaGLDeviceDRV(int argc, const char **argv)
         if (devID < 0)
         {
             printf("no CUDA capable devices found, exiting...\n");
-            exit(0);
+            exit(EXIT_SUCCESS);
         }
     }
     else
