@@ -1,7 +1,7 @@
-Version of libraries (last updated: 10 Sep 2012)
+Version of libraries (last updated: 18 Oct 2012)
 
-freeglut	CUDA 5 Release Candidate
-http://developer.nvidia.com/cuda/
+freeglut	CUDA 5.0 Production - Released Oct 15,2012.
+http://developer.nvidia.com/cuda/cuda-toolkit
 
 GLM		30/06/2012 GLM 0.9.3.4 released
 http://www.g-truc.net/post-project-glm.html

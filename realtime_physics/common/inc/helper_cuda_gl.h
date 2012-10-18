@@ -37,7 +37,7 @@ inline int gpuGLDeviceInit(int ARGC, const char **ARGV)
     if (deviceCount == 0)
     {
         fprintf(stderr, "CUDA error: no devices supporting CUDA.\n");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     int dev = 0;
@@ -69,7 +69,7 @@ inline int gpuGLDeviceInit(int ARGC, const char **ARGV)
     if (deviceProp.major < 1)
     {
         fprintf(stderr, "Error: device does not support CUDA.\n");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     if (checkCmdLineFlag(ARGC, ARGV, "quiet") == false)
@@ -95,7 +95,7 @@ inline int findCudaGLDevice(int argc, const char **argv)
         {
             printf("no CUDA capable devices found, exiting...\n");
             cudaDeviceReset();
-            exit(0);
+            exit(EXIT_SUCCESS);
         }
     }
     else

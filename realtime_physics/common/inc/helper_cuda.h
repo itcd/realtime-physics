@@ -724,7 +724,7 @@ inline void __getLastCudaError(const char *errorMessage, const char *file, const
     {
         fprintf(stderr, "%s(%i) : getLastCudaError() CUDA error : %s : (%d) %s.\n",
                 file, line, errorMessage, (int)err, cudaGetErrorString(err));
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 }
 #endif
@@ -784,7 +784,7 @@ inline int gpuDeviceInit(int devID)
     if (deviceCount == 0)
     {
         fprintf(stderr, "gpuDeviceInit() CUDA error: no devices supporting CUDA.\n");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     if (devID < 0)
@@ -813,7 +813,7 @@ inline int gpuDeviceInit(int devID)
     if (deviceProp.major < 1)
     {
         fprintf(stderr, "gpuDeviceInit(): GPU device does not support CUDA.\n");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     checkCudaErrors(cudaSetDevice(devID));
@@ -910,7 +910,7 @@ inline int findCudaDevice(int argc, const char **argv)
         if (devID < 0)
         {
             printf("Invalid command line parameter\n ");
-            exit(-1);
+            exit(EXIT_FAILURE);
         }
         else
         {
