@@ -1,3 +1,3 @@
 # realtime-physics
 
-Particle system and GJK collision detection
+A particle system and GJK collision detection
